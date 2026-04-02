@@ -1,0 +1,20 @@
+ebnf-ish grammar
+
+Num = [0-9]+
+Vsym = [A-Z][a-zA-Z0-9_]*
+Verb = Vsym
+  | '{' Expr ( ';' Expr )*  '}'
+  | VSym ':' Verb
+Noun = Num
+  | [a-z][a-zA-Z0-9_]*
+  | '[' Noun+ ']'
+  | '(' ',' Noun* ')'
+todo: dict syntax
+
+Expr = Expr [ Verb [ Adv ] Expr ]
+  | Verb [ [ Adv ] Expr ]
+  | '(' Expr ')'
+
+is "f(1)" just the same as "f 1"?
+that could work well for named args
+eg "f{y:1}" to specifically assign arg y
