@@ -37,8 +37,8 @@ int next(void) {
                isdigit((unsigned char)buf[pos]) ||
                buf[pos] == '_')
             pos++;
-        if (buf[pos - 1] == '_')   /* text must not end with underscore */
-            return -1;
+        while (buf[pos - 1] == '_')  /* retreat past trailing underscores */
+            pos--;
         t = 'A';
         return 0;
     }
