@@ -10,56 +10,43 @@ int fDone = 0;
 char buf[BUF_SIZE];
 
 /* tokenizer state */
-int  pos;   /* index of next char to consume */
-int  mark;  /* index of first char of current token */
-char t;     /* token type: 'A'=text, '1'=number, symbol char, 0=EOF */
-int  tn;    /* numeric value when t=='1' */
+int pos;   /* index of next char to consume */
+int mark;  /* index of first char of current token */
+int t;     /* token type: 'A'=text, '1'=number, symbol char, 0=EOF */
+int tn;    /* numeric value when t=='1' */
 
-/* Advance to the next token.
-   Returns 0 on success, -1 on error.
-   Sets t=0 at EOF. */
+/* Advance to the next token. */
 int next(void) {
-    while (buf[pos] == ' ' || buf[pos] == '\t' ||
-           buf[pos] == '\n' || buf[pos] == '\r')
-        pos++;
-
-    mark = pos;
-
     char c = buf[pos];
-
-    if (c == '\0') {
-        t = 0;
-        return 0;
+    while (c <= ' ')
+        c = buf[++pos];
+    mark = pos;
+    if (!c) {
+        return t = 0;
+    }
+    if (isalpha(c)) {
+        do {
+            c = buf[++pos];
+        } while (isalpha(c) || isdigit(c));
+        return t = 'A';
     }
 
-    if (isalpha((unsigned char)c)) {
-        while (isalpha((unsigned char)buf[pos]) ||
-               isdigit((unsigned char)buf[pos]) ||
-               buf[pos] == '_')
-            pos++;
-        while (buf[pos - 1] == '_')  /* retreat past trailing underscores */
-            pos--;
-        t = 'A';
-        return 0;
+    if (isdigit(c)) {
+        int v=0;
+        do {
+            int p = v;
+            int d = c - '0';
+            int v = val*10+d;
+            if (v<p) return -1; // overflow
+            c = buf[++pos];
+        } while (isalpha(c) || isdigit(c));
+        tn = v;
+        return t='1';
     }
 
-    if (isdigit((unsigned char)c)) {
-        long val = 0;
-        while (isdigit((unsigned char)buf[pos])) {
-            int d = buf[pos++] - '0';
-            if (val > (INT_MAX - d) / 10)
-                return -1;          /* overflow */
-            val = val * 10 + d;
-        }
-        tn = (int)val;
-        t = '1';
-        return 0;
-    }
-
-    if (isprint((unsigned char)c)) {
-        t = c;
+    if (c>' ' && c<127)) {
         pos++;
-        return 0;
+        return t=c;
     }
 
     return -1;   /* unrecognised byte */
