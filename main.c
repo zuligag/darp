@@ -39,7 +39,7 @@ int next(void) {
             int v = val*10+d;
             if (v<p) return -1; // overflow
             c = buf[++pos];
-        } while (isalpha(c) || isdigit(c));
+        } while (isdigit(c));
         tn = v;
         return t='1';
     }
